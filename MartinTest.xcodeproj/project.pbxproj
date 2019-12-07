@@ -18,6 +18,8 @@
 		579CEB4D239B41A6008A1F89 /* MartinTestUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 579CEB4C239B41A6008A1F89 /* MartinTestUITests.swift */; };
 		579CEB5B239B7071008A1F89 /* HeaderRecommonendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 579CEB5A239B7071008A1F89 /* HeaderRecommonendView.swift */; };
 		579CEB5D239B7344008A1F89 /* NetworkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 579CEB5C239B7344008A1F89 /* NetworkRequest.swift */; };
+		579CEB5F239B99DB008A1F89 /* TopListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 579CEB5E239B99DB008A1F89 /* TopListTableViewCell.swift */; };
+		579CEB61239B9FC3008A1F89 /* TopListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 579CEB60239B9FC3008A1F89 /* TopListModel.swift */; };
 		5A6269EDE07E33DBDCF2C2F1 /* Pods_MartinTestTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A5602F2B9E12D3D5E5334FB /* Pods_MartinTestTests.framework */; };
 		84453706CD5D08D25A94A320 /* Pods_MartinTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 988AB17B7E3C6AB59FBCE4E0 /* Pods_MartinTest.framework */; };
 /* End PBXBuildFile section */
@@ -58,6 +60,8 @@
 		579CEB4E239B41A6008A1F89 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		579CEB5A239B7071008A1F89 /* HeaderRecommonendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderRecommonendView.swift; sourceTree = "<group>"; };
 		579CEB5C239B7344008A1F89 /* NetworkRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRequest.swift; sourceTree = "<group>"; };
+		579CEB5E239B99DB008A1F89 /* TopListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopListTableViewCell.swift; sourceTree = "<group>"; };
+		579CEB60239B9FC3008A1F89 /* TopListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopListModel.swift; sourceTree = "<group>"; };
 		7EBA941DE35516C548869998 /* Pods-MartinTestTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MartinTestTests.debug.xcconfig"; path = "Target Support Files/Pods-MartinTestTests/Pods-MartinTestTests.debug.xcconfig"; sourceTree = "<group>"; };
 		909F0757F618D281BFA847E5 /* Pods_MartinTestUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MartinTestUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		988AB17B7E3C6AB59FBCE4E0 /* Pods_MartinTest.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MartinTest.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -123,6 +127,8 @@
 				579CEB2A239B41A5008A1F89 /* AppDelegate.swift */,
 				579CEB2C239B41A5008A1F89 /* SceneDelegate.swift */,
 				579CEB2E239B41A5008A1F89 /* ViewController.swift */,
+				579CEB5E239B99DB008A1F89 /* TopListTableViewCell.swift */,
+				579CEB60239B9FC3008A1F89 /* TopListModel.swift */,
 				579CEB5A239B7071008A1F89 /* HeaderRecommonendView.swift */,
 				579CEB5C239B7344008A1F89 /* NetworkRequest.swift */,
 				579CEB30239B41A5008A1F89 /* Main.storyboard */,
@@ -413,9 +419,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				579CEB2F239B41A5008A1F89 /* ViewController.swift in Sources */,
+				579CEB5F239B99DB008A1F89 /* TopListTableViewCell.swift in Sources */,
 				579CEB5B239B7071008A1F89 /* HeaderRecommonendView.swift in Sources */,
 				579CEB2B239B41A5008A1F89 /* AppDelegate.swift in Sources */,
 				579CEB2D239B41A5008A1F89 /* SceneDelegate.swift in Sources */,
+				579CEB61239B9FC3008A1F89 /* TopListModel.swift in Sources */,
 				579CEB5D239B7344008A1F89 /* NetworkRequest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -8,54 +8,81 @@
 
 import UIKit
 import MBProgressHUD
-
+import SwiftyJSON
 
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     var tableView : UITableView?
+    var listData : Array<Any>?
     let identfier = "identifier"
     var index = 0;
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.setupUI()
-        //和你Eat
+        setupUI()
         
+        requestData()
+
+    }
+    
+    func setupUI() {
+        tableView = UITableView.init(frame: self.view.bounds, style: .grouped)
+        tableView?.showsVerticalScrollIndicator = false
+        tableView?.dataSource = self
+        tableView?.delegate = self
+        tableView?.isPagingEnabled = true
+        tableView?.register(TopListTableViewCell.self, forCellReuseIdentifier: self.identfier)
+        view.addSubview(self.tableView!)
+    }
+    
+    func requestData() {
+        let hud = MBProgressHUD.showAdded(to: view, animated: true)
         let request = Network();
 //        request.requestRecommend { (success,result) in
 //            print(result)
 //        }
-//
-        request.requestTopList { (success, result) in
-            print(result)
+        
+        request.requestTopList {[weak self] (success, result) in
+            
+            hud.hide(animated: true)
+            if (success) {
+                let entry = result as! JSON
+                self!.listData = entry["feed"]["entry"].array
+                
+                
+                self?.tableView?.reloadData()
+            } else {
+                self?.showErrorAlert(message: "拉取榜单列表失败")
+            }
         }
-//
+        
 //        request.requestLookupApp(appid: "222") { (success, result) in
 //            print(result)
 //        }
     }
     
-    func setupUI() {
-        self.tableView = UITableView.init(frame: self.view.bounds, style: .grouped)
-        self.tableView?.showsVerticalScrollIndicator = false;
-        self.tableView?.dataSource = self;
-        self.tableView?.delegate = self;
-        self.tableView?.isPagingEnabled = true;
-        self.tableView?.register(UITableViewCell.self, forCellReuseIdentifier: self.identfier)
-        self.view.addSubview(self.tableView!)
+    func showErrorAlert(message:String) {
+        let alert = UIAlertController(title: "提示", message: message, preferredStyle: .alert)
+        let action = UIAlertAction.init(title: "确定", style: .default, handler: nil)
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 100
+        return self.listData?.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let tableViewCell = tableView.dequeueReusableCell(withIdentifier: self.identfier)
         tableViewCell?.selectionStyle = .none
         index += 1;
-        tableViewCell?.textLabel?.text = String.init("\(index)");
-        return tableViewCell!;
+        let cell = tableViewCell as! TopListTableViewCell
+        let topListModel = self.listData?[indexPath.row]
+        let model = TopListModel(index:indexPath.row,originalData: topListModel as! Dictionary<String, Any>)
+        cell.updateData(model: model)
+        cell.textLabel?.text = String.init("\(index)");
+        return cell;
     }
 
     
