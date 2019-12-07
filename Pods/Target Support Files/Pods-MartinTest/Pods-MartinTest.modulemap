@@ -1,0 +1,6 @@
+framework module Pods_MartinTest {
+  umbrella header "Pods-MartinTest-umbrella.h"
+
+  export *
+  module * { export * }
+}
