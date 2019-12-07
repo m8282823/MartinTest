@@ -14,9 +14,8 @@ import SwiftyJSON
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     var tableView : UITableView?
-    var listData : Array<Any>?
+    var listData : Array<JSON>?
     let identfier = "identifier"
-    var index = 0;
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,6 +31,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView?.dataSource = self
         tableView?.delegate = self
         tableView?.isPagingEnabled = true
+        tableView?.rowHeight = 95
         tableView?.register(TopListTableViewCell.self, forCellReuseIdentifier: self.identfier)
         view.addSubview(self.tableView!)
     }
@@ -76,12 +76,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let tableViewCell = tableView.dequeueReusableCell(withIdentifier: self.identfier)
         tableViewCell?.selectionStyle = .none
-        index += 1;
         let cell = tableViewCell as! TopListTableViewCell
         let topListModel = self.listData?[indexPath.row]
-        let model = TopListModel(index:indexPath.row,originalData: topListModel as! Dictionary<String, Any>)
+        
+        let model = TopListModel(index:indexPath.row + 1,originalData: topListModel ?? JSON())
         cell.updateData(model: model)
-        cell.textLabel?.text = String.init("\(index)");
+        
         return cell;
     }
 

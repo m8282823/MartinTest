@@ -8,6 +8,7 @@
 
 import UIKit
 import SnapKit
+import Kingfisher
 
 class TopListTableViewCell: UITableViewCell {
     
@@ -21,6 +22,7 @@ class TopListTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
         makeConstraint()
+        
     }
     
     func setupUI() {
@@ -31,7 +33,8 @@ class TopListTableViewCell: UITableViewCell {
         iconImageView.clipsToBounds = true
         contentView.addSubview(iconImageView)
         
-        nameLabel.font = UIFont.boldSystemFont(ofSize: 14)
+        nameLabel.font = UIFont.systemFont(ofSize: 15)
+        nameLabel.numberOfLines = 2
         nameLabel.textColor = .black
         contentView.addSubview(nameLabel)
         
@@ -46,29 +49,30 @@ class TopListTableViewCell: UITableViewCell {
     
     func makeConstraint() {
         indexLabel.snp.makeConstraints { (make) in
-            make.left.equalTo(contentView.snp_leftMargin).offset(10)
+            make.left.equalTo(contentView.snp.left).offset(10)
             make.centerY.equalToSuperview()
         }
         
         iconImageView.snp.makeConstraints { (make) in
-            make.left.equalTo(indexLabel.snp_rightMargin).offset(20)
+            make.left.equalTo(indexLabel.snp.right).offset(20)
             make.centerY.equalToSuperview()
-            make.width.height.equalTo(50)
+            make.width.height.equalTo(70)
         }
         
         nameLabel.snp.makeConstraints { (make) in
-            make.left.equalTo(iconImageView.snp_rightMargin).offset(10)
-            make.top.equalTo(iconImageView.snp_topMargin).offset(5)
+            make.left.equalTo(iconImageView.snp.right).offset(20)
+            make.right.equalToSuperview().offset(-10)
+            make.top.equalTo(iconImageView.snp.top).offset(5)
         }
         
         typeLabel.snp.makeConstraints { (make) in
-            make.left.equalTo(nameLabel.snp_leftMargin)
-            make.top.equalTo(nameLabel.snp_bottomMargin).offset(5)
+            make.left.equalTo(nameLabel.snp.left)
+            make.top.equalTo(nameLabel.snp.bottom).offset(5)
         }
         
         scoreLabel.snp.makeConstraints { (make) in
-            make.left.equalTo(nameLabel.snp_leftMargin)
-            make.top.equalTo(typeLabel.snp_bottomMargin).offset(5)
+            make.left.equalTo(nameLabel.snp.left)
+            make.top.equalTo(typeLabel.snp.bottom).offset(10)
         }
     }
     
@@ -78,7 +82,17 @@ class TopListTableViewCell: UITableViewCell {
     
     
     func updateData(model: TopListModel) {
+        indexLabel.text = model.index;
+        iconImageView.kf.setImage(with: URL(string: model.iconImageUrlString))
+        nameLabel.text = model.nameString
+        typeLabel.text = model.typeString
+        scoreLabel.text = model.scoreString
         
+        if (Int(model.index)! % 2 == 0) {
+            iconImageView.layer.cornerRadius = 35
+        } else {
+            iconImageView.layer.cornerRadius = 10
+        }
     }
     
 }

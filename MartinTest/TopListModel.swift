@@ -7,21 +7,25 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 class TopListModel {
     
     
     var index: String
-//    var iconImageUrlString: String
-//    var nameString: String
-//    var typeString: String
-//    var scoreString: String
+    var iconImageUrlString: String
+    var nameString: String
+    var typeString: String
+    var scoreString: String
     
     
-    init(index:Int, originalData: Dictionary<String,Any>) {
+    init(index:Int, originalData: JSON) {
         self.index = "\(index)"
         
-        
+        typeString = originalData["category"]["attributes"]["label"].string ?? ""
+        iconImageUrlString = originalData["im:image"][0]["label"].string ?? ""
+        nameString = originalData["im:name"]["label"].string ?? ""
+        scoreString = ""
     }
 }
 
