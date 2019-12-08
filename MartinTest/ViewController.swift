@@ -14,6 +14,7 @@ import Alamofire
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     var tableView : UITableView?
+    var rawListData : Array<JSON>?
     var listData : Array<JSON>?
     let searchBar = UISearchBar(frame: CGRect(origin: CGPoint.init(x: 0, y: 0), size: CGSize(width: UIScreen.main.bounds.size.width, height: 44)))
     var headerView = HeaderRecommonendView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: UIScreen.main.bounds.size.width, height: HeaderRecommonendView.height)))
@@ -21,7 +22,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     let request = Network()
     var isSearchMode = false
     var isCheckedNetwork = false
-    
+    let footLabel = UILabel(frame: CGRect(origin: CGPoint(x: 20, y: 10), size: CGSize(width: 200, height: 30)))
     
     
     var searchListData : Array<JSON>? = []
@@ -57,8 +58,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         searchBar.placeholder = "搜寻"
         searchBar.backgroundImage = UIImage()
         searchBar.searchTextField.addTarget(self, action: #selector(textFieldChanged(textField:)), for: UIControl.Event.editingChanged)
-//        tableView?.tableHeaderView = searchBar
         navigationItem.titleView = searchBar
+        
+        footLabel.font = UIFont.systemFont(ofSize: 16)
+        footLabel.textColor = .black
+        footLabel.text = "正在加载中..."
+        footLabel.isHidden = true
     }
     
     func requestRecommendData() {
@@ -83,9 +88,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             hud.hide(animated: true)
             if (success) {
                 let entry = result as! JSON
-                self?.listData = entry["feed"]["entry"].array
-                
+                self?.rawListData = entry["feed"]["entry"].array
+                self?.listData = Array(self?.rawListData?[0..<10] ?? [])
                 self?.tableView?.reloadData()
+                self?.footLabel.isHidden = false
             } else {
                 self?.showErrorAlert(message: "拉取榜单列表失败")
                 self?.checkNetworkState()
@@ -132,12 +138,23 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         return headerView
     }
     
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        let footView = UIView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: 200, height: 500)))
+        footView.addSubview(footLabel)
+        return footView
+    }
+    
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if isSearchMode && headerView.searchData?.count == 0 {
             return 0
         }
         return HeaderRecommonendView.height
     }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 50
+    }
+    
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if isSearchMode {
@@ -162,6 +179,25 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         return cell;
     }
     
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        let indexPath = tableView?.indexPathsForVisibleRows?.last
+        if (indexPath?.row ?? 0) + 1 == listData?.count {
+            if listData?.count ?? 0 < rawListData?.count ?? 0 {
+                let fromIndex = (listData?.count ?? 0)
+                let toIndex = (listData?.count ?? 0) + 10
+                
+                let newListData = Array<JSON>((rawListData?[fromIndex ..< toIndex])!)
+                listData?.append(contentsOf: newListData)
+                
+                if listData?.count == rawListData?.count {
+                    footLabel.text = "没有更多数据了"
+                }
+                tableView?.reloadData()
+            } else {
+                footLabel.text = "没有更多数据了"
+            }
+        }
+    }
     
     func searchKeyword(keyword: String) {
         searchListData?.removeAll()

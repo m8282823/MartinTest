@@ -27,7 +27,7 @@ extension Store: TargetType {
     public var path: String {
         switch self {
         case .topList:
-            return "hk/rss/topfreeapplications/limit=20/json"
+            return "hk/rss/topfreeapplications/limit=100/json"
         case .recommend:
             return "hk/rss/topgrossingapplications/limit=10/json"
         case .lookup(_):
