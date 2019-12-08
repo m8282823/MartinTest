@@ -9,7 +9,7 @@
 import UIKit
 import MBProgressHUD
 import SwiftyJSON
-
+import Alamofire
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
@@ -20,6 +20,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     let identfier = "identifier"
     let request = Network()
     var isSearchMode = false
+    var isCheckedNetwork = false
     
     
     
@@ -34,8 +35,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         view.backgroundColor = .white
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        searchBar.frame = CGRect(origin: CGPoint.init(x: 0, y: 0), size: CGSize(width: UIScreen.main.bounds.size.width, height: 44))
+        headerView.frame = CGRect(origin: CGPoint.init(x: 0, y: 0), size: CGSize(width: UIScreen.main.bounds.size.width, height: 44))
+        tableView?.frame = view.bounds
+    }
+    
     func setupUI() {
-        tableView = UITableView.init(frame: self.view.bounds, style: .grouped)
+        tableView = UITableView.init(frame: view.bounds, style: .grouped)
         tableView?.showsVerticalScrollIndicator = false
         tableView?.backgroundColor = .white
         tableView?.dataSource = self
@@ -44,12 +52,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView?.rowHeight = 95
         tableView?.register(TopListTableViewCell.self, forCellReuseIdentifier: self.identfier)
         view.addSubview(self.tableView!)
+        tableView?.keyboardDismissMode = .onDrag
         
         searchBar.placeholder = "搜寻"
         searchBar.backgroundImage = UIImage()
         searchBar.searchTextField.addTarget(self, action: #selector(textFieldChanged(textField:)), for: UIControl.Event.editingChanged)
-        tableView?.tableHeaderView = searchBar
-        
+//        tableView?.tableHeaderView = searchBar
+        navigationItem.titleView = searchBar
     }
     
     func requestRecommendData() {
@@ -61,6 +70,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 self?.headerView.recommendData = json["feed"]["entry"].array
             } else {
                 self?.showErrorAlert(message: "拉取推荐失败")
+                self?.checkNetworkState()
             }
         }
     }
@@ -74,10 +84,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             if (success) {
                 let entry = result as! JSON
                 self?.listData = entry["feed"]["entry"].array
-                print(entry)
+                
                 self?.tableView?.reloadData()
             } else {
                 self?.showErrorAlert(message: "拉取榜单列表失败")
+                self?.checkNetworkState()
             }
         }
 //        request.requestLookupApp(appid: "222") { (success, result) in
@@ -85,9 +96,34 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 //        }
     }
     
+    func checkNetworkState() {
+        let manager = NetworkReachabilityManager()
+        manager?.listener = {[weak manager] status in
+            manager?.stopListening()
+            switch status {
+            case .notReachable:
+                self.showErrorAlert(message: "请检查网络后重试")
+                break
+            case .unknown:
+                self.showErrorAlert(message: "请检查网络后重试")
+                break
+            case .reachable(.ethernetOrWiFi):
+                break
+            case .reachable(.wwan):
+                break
+            }
+        }
+        manager?.startListening()
+    }
+    
     func showErrorAlert(message:String) {
         let alert = UIAlertController(title: "提示", message: message, preferredStyle: .alert)
-        let action = UIAlertAction.init(title: "确定", style: .default, handler: nil)
+        let action = UIAlertAction.init(title: "确定", style: .default) {[weak self] (action) in
+            if !(self?.isCheckedNetwork ?? false) {
+                self?.checkNetworkState()
+                self?.isCheckedNetwork = true
+            }
+        }
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
     }

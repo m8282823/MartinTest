@@ -45,19 +45,31 @@ class HeaderRecommonendView: UIView,UICollectionViewDelegate,UICollectionViewDat
        }
 
     override init(frame: CGRect) {
-        self.titleLabel = UILabel(frame: CGRect(origin: CGPoint(x: 10, y: 10), size: CGSize(width: 100, height: 30)))
+        titleLabel = UILabel(frame: CGRect(origin: CGPoint(x: 10, y: 10), size: CGSize(width: 100, height: 30)))
         let layout = UICollectionViewFlowLayout()
         layout.headerReferenceSize = CGSize(width: 10, height: 0)
         layout.footerReferenceSize = CGSize(width: 10, height: 0)
-        layout.itemSize = CGSize(width: frame.size.width / 4.0, height: 170)
+        var itemWidth =  frame.size.width / 4.0
+        
+        if UIApplication.shared.statusBarOrientation == .landscapeLeft ||
+        UIApplication.shared.statusBarOrientation == .landscapeRight {
+            itemWidth = UIScreen.main.bounds.size.height / 4.0
+        }
+        
+        layout.itemSize = CGSize(width: itemWidth, height: 170)
         layout.minimumLineSpacing = 20
         
         
         layout.scrollDirection = .horizontal
-        self.collectionView = UICollectionView.init(frame: CGRect(origin: CGPoint(x: 0, y: titleLabel.frame.maxY + 20), size: CGSize(width: frame.size.width, height: 170)), collectionViewLayout: layout)
+        collectionView = UICollectionView.init(frame: CGRect(origin: CGPoint(x: 0, y: titleLabel.frame.maxY + 20), size: CGSize(width: frame.size.width, height: 170)), collectionViewLayout: layout)
         super.init(frame: frame)
         setupUI()
         backgroundColor = .white
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        collectionView.frame = CGRect(origin: CGPoint(x: 0, y: titleLabel.frame.maxY + 20), size: CGSize(width: frame.size.width, height: 170))
     }
     
     func setupUI() {
