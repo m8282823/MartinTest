@@ -103,8 +103,12 @@ public class Network {
                     completeResult(.success,json)
                 } catch {
                     if let cacheData = cache?.object(forKey: storeKey) {
-                        let json = JSON(cacheData)
-                        completeResult(.failureData,json)
+                        if storeKey == "lookup" {
+                            completeResult(.failureNoData,response)
+                        } else {
+                            let json = JSON(cacheData)
+                            completeResult(.failureData,json)
+                        }
                     } else {
                         completeResult(.failureNoData,response)
                     }

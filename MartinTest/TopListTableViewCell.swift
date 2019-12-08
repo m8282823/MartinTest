@@ -9,6 +9,7 @@
 import UIKit
 import SnapKit
 import Kingfisher
+import SwiftyJSON
 
 class TopListTableViewCell: UITableViewCell {
     
@@ -17,6 +18,7 @@ class TopListTableViewCell: UITableViewCell {
     let nameLabel = UILabel()
     let typeLabel = UILabel()
     let scoreLabel = UILabel()
+    let request = Network()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -72,7 +74,7 @@ class TopListTableViewCell: UITableViewCell {
         
         scoreLabel.snp.makeConstraints { (make) in
             make.left.equalTo(nameLabel.snp.left)
-            make.top.equalTo(typeLabel.snp.bottom).offset(10)
+            make.top.equalTo(typeLabel.snp.bottom).offset(5)
         }
     }
     
@@ -81,17 +83,34 @@ class TopListTableViewCell: UITableViewCell {
     }
     
     
-    func updateData(model: TopListModel) {
+    func updateData(model: TopListModel, score: ScoreModel) {
         indexLabel.text = model.index;
         iconImageView.kf.setImage(with: URL(string: model.iconImageUrlString))
         nameLabel.text = model.nameString
         typeLabel.text = model.typeString
-        scoreLabel.text = model.scoreString
         
         if (Int(model.index)! % 2 == 0) {
             iconImageView.layer.cornerRadius = 35
         } else {
             iconImageView.layer.cornerRadius = 10
+        }
+        if score.scoreString.count > 0 && score.countString.count > 0 {
+            self.scoreLabel.text = "\(String(describing: score.scoreString))(\(String(describing: score.countString)))"
+            return
+        }
+        
+        request.requestLookupApp(appid: model.idString) {[weak self] (success, result) in
+            if success == .success {
+                let idData = result as! JSON
+                let dictionary = idData["results"].array?.first?.dictionary
+                let averageRating = dictionary?["averageUserRating"]?.number?.stringValue ?? ""
+                let ratingCount = dictionary?["userRatingCount"]?.number?.stringValue ?? ""
+                if averageRating.count > 0 && ratingCount.count > 0 {
+                    self?.scoreLabel.text = "\(String(describing: averageRating))(\(String(describing: ratingCount)))"
+                    score.scoreString = averageRating
+                    score.countString = ratingCount
+                }
+            }
         }
     }
     

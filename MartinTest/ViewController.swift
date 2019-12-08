@@ -23,6 +23,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var isSearchMode = false
     var isCheckedNetwork = false
     let footLabel = UILabel(frame: CGRect(origin: CGPoint(x: 20, y: 10), size: CGSize(width: 200, height: 30)))
+    var scoreListData : Array<ScoreModel>? = []
     
     
     var searchListData : Array<JSON>? = []
@@ -95,14 +96,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 self?.listData = Array(self?.rawListData?[0..<10] ?? [])
                 self?.tableView?.reloadData()
                 self?.footLabel.isHidden = false
+                
+                for _ in self?.rawListData ?? [] {
+                    self?.scoreListData?.append(ScoreModel())
+                }
             } else {
                 self?.showErrorAlert(message: "拉取榜单列表失败")
                 self?.checkNetworkState()
             }
         }
-//        request.requestLookupApp(appid: "222") { (success, result) in
-//            print(result)
-//        }
     }
     
     func checkNetworkState() {
@@ -178,12 +180,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableViewCell?.selectionStyle = .none
         let cell = tableViewCell as! TopListTableViewCell
         var topListModel = listData?[indexPath.row]
+        var scoreModel = scoreListData?[indexPath.row]
         if isSearchMode {
             topListModel = searchListData?[indexPath.row]
+            scoreModel = ScoreModel()
         }
         
         let model = TopListModel(index:indexPath.row + 1,originalData: topListModel ?? JSON())
-        cell.updateData(model: model)
+        cell.updateData(model: model, score: scoreModel ?? ScoreModel())
         
         return cell;
     }

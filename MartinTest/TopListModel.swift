@@ -16,8 +16,8 @@ class TopListModel {
     var iconImageUrlString: String
     var nameString: String
     var typeString: String
-    var scoreString: String
-    
+    var idString: String
+
     
     init(index:Int, originalData: JSON) {
         self.index = "\(index)"
@@ -25,8 +25,13 @@ class TopListModel {
         typeString = originalData["category"]["attributes"]["label"].string ?? ""
         iconImageUrlString = originalData["im:image"].array?.last?["label"].string ?? ""
         nameString = originalData["im:name"]["label"].string ?? ""
-        scoreString = ""
+        idString = originalData["id"]["attributes"]["im:id"].string ?? ""
     }
+}
+
+class ScoreModel {
+    var scoreString = ""
+    var countString = ""
 }
 
 class RecommendModel {
