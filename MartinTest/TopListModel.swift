@@ -29,3 +29,20 @@ class TopListModel {
     }
 }
 
+class RecommendModel {
+    var iconImageUrlString: String
+    var nameString: String
+    var typeString: String
+    
+    
+    init(originalData: JSON) {
+        iconImageUrlString = originalData["im:image"][0]["label"].string ?? ""
+        nameString = originalData["im:name"]["label"].string ?? ""
+        typeString = originalData["category"]["attributes"]["label"].string ?? ""
+    }
+    
+    
+}
+
+
+

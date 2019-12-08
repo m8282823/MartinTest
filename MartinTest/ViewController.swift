@@ -15,48 +15,71 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     var tableView : UITableView?
     var listData : Array<JSON>?
+    let searchBar = UISearchBar(frame: CGRect(origin: CGPoint.init(x: 0, y: 0), size: CGSize(width: UIScreen.main.bounds.size.width, height: 44)))
+    var headerView = HeaderRecommonendView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: UIScreen.main.bounds.size.width, height: HeaderRecommonendView.height)))
     let identfier = "identifier"
+    let request = Network()
+    var isSearchMode = false
+    
+    
+    
+    var searchListData : Array<JSON>? = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         
-        requestData()
-
+        requestTopListData()
+        requestRecommendData()
+        view.backgroundColor = .white
     }
     
     func setupUI() {
         tableView = UITableView.init(frame: self.view.bounds, style: .grouped)
         tableView?.showsVerticalScrollIndicator = false
+        tableView?.backgroundColor = .white
         tableView?.dataSource = self
         tableView?.delegate = self
-        tableView?.isPagingEnabled = true
+//        tableView?.isPagingEnabled = true
         tableView?.rowHeight = 95
         tableView?.register(TopListTableViewCell.self, forCellReuseIdentifier: self.identfier)
         view.addSubview(self.tableView!)
+        
+        searchBar.placeholder = "搜寻"
+        searchBar.backgroundImage = UIImage()
+        searchBar.searchTextField.addTarget(self, action: #selector(textFieldChanged(textField:)), for: UIControl.Event.editingChanged)
+        tableView?.tableHeaderView = searchBar
+        
     }
     
-    func requestData() {
+    func requestRecommendData() {
         let hud = MBProgressHUD.showAdded(to: view, animated: true)
-        let request = Network();
-//        request.requestRecommend { (success,result) in
-//            print(result)
-//        }
+        request.requestRecommend { [weak self] (success,result) in
+            hud.hide(animated: true)
+            if (success) {
+                let json = result as! JSON
+                self?.headerView.recommendData = json["feed"]["entry"].array
+            } else {
+                self?.showErrorAlert(message: "拉取推荐失败")
+            }
+        }
+    }
+    
+    func requestTopListData() {
+        let hud = MBProgressHUD.showAdded(to: view, animated: true)
         
         request.requestTopList {[weak self] (success, result) in
             
             hud.hide(animated: true)
             if (success) {
                 let entry = result as! JSON
-                self!.listData = entry["feed"]["entry"].array
-                
-                
+                self?.listData = entry["feed"]["entry"].array
+                print(entry)
                 self?.tableView?.reloadData()
             } else {
                 self?.showErrorAlert(message: "拉取榜单列表失败")
             }
         }
-        
 //        request.requestLookupApp(appid: "222") { (success, result) in
 //            print(result)
 //        }
@@ -70,29 +93,78 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return HeaderRecommonendView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: view.frame.size.width, height: HeaderRecommonendView.height)))
+        return headerView
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if isSearchMode && headerView.searchData?.count == 0 {
+            return 0
+        }
         return HeaderRecommonendView.height
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.listData?.count ?? 0
+        if isSearchMode {
+            return searchListData?.count ?? 0
+        } else {
+            return listData?.count ?? 0
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let tableViewCell = tableView.dequeueReusableCell(withIdentifier: self.identfier)
         tableViewCell?.selectionStyle = .none
         let cell = tableViewCell as! TopListTableViewCell
-        let topListModel = self.listData?[indexPath.row]
+        var topListModel = listData?[indexPath.row]
+        if isSearchMode {
+            topListModel = searchListData?[indexPath.row]
+        }
         
         let model = TopListModel(index:indexPath.row + 1,originalData: topListModel ?? JSON())
         cell.updateData(model: model)
         
         return cell;
     }
+    
+    
+    func searchKeyword(keyword: String) {
+        searchListData?.removeAll()
+        headerView.searchData?.removeAll()
+        for json in listData ?? [] {
+            let nameString = json["im:name"]["label"].string ?? ""
+            let typeString = json["category"]["attributes"]["label"].string ?? ""
+            let summaryString = json["summary"]["label"].string ?? ""
+            if nameString.contains(keyword) || typeString.contains(keyword) || summaryString.contains(keyword) {
+                searchListData?.append(json)
+            }
+        }
+        
+        tableView?.reloadData()
+        
+        for json in headerView.recommendData ?? [] {
+            let nameString = json["im:name"]["label"].string ?? ""
+            let typeString = json["category"]["attributes"]["label"].string ?? ""
+            let summaryString = json["summary"]["label"].string ?? ""
+            if nameString.contains(keyword) || typeString.contains(keyword) || summaryString.contains(keyword) {
+                headerView.searchData?.append(json)
+            }
+        }
+        headerView.reloadData()
+    }
 
+    @objc func textFieldChanged(textField: UITextField) {
+        
+        self.headerView.isSearchMode = (textField.text?.count ?? 0 > 0)
+        isSearchMode = (textField.text?.count ?? 0 > 0)
+        if textField.text?.count ?? 0 > 0 {
+            searchKeyword(keyword: textField.text ?? "")
+        } else {
+            tableView?.reloadData()
+            headerView.reloadData()
+            
+        }
+        
+    }
     
 }
 
