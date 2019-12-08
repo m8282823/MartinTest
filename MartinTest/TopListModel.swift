@@ -23,7 +23,7 @@ class TopListModel {
         self.index = "\(index)"
         
         typeString = originalData["category"]["attributes"]["label"].string ?? ""
-        iconImageUrlString = originalData["im:image"][0]["label"].string ?? ""
+        iconImageUrlString = originalData["im:image"].array?.last?["label"].string ?? ""
         nameString = originalData["im:name"]["label"].string ?? ""
         scoreString = ""
     }
@@ -36,7 +36,7 @@ class RecommendModel {
     
     
     init(originalData: JSON) {
-        iconImageUrlString = originalData["im:image"][0]["label"].string ?? ""
+        iconImageUrlString = originalData["im:image"].array?.last?["label"].string ?? ""
         nameString = originalData["im:name"]["label"].string ?? ""
         typeString = originalData["category"]["attributes"]["label"].string ?? ""
     }
