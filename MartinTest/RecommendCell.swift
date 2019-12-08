@@ -55,13 +55,13 @@ class RecommendCell: UICollectionViewCell {
         nameLabel.snp.makeConstraints { (make) in
             make.top.equalTo(iconImageView.snp.bottom).offset(10)
             make.left.equalToSuperview()
-            make.width.equalTo(120)
+            make.width.equalTo(110)
         }
         
         typeLabel.snp.makeConstraints { (make) in
             make.top.equalTo(nameLabel.snp.bottom).offset(10)
             make.left.equalToSuperview()
-            make.width.equalTo(120)
+            make.width.equalTo(110)
         }
     }
     

@@ -10,8 +10,15 @@ import Foundation
 import Moya
 import SwiftyJSON
 import Result
+import YYCache
 
-typealias CompleteResult = (Bool,Any) -> Void
+typealias CompleteResult = (FetchDataType,Any) -> Void
+
+public enum FetchDataType {
+    case success
+    case failureData
+    case failureNoData
+}
 
 public enum Store {
     case recommend
@@ -67,38 +74,50 @@ public class Network {
     func requestRecommend(completeResult:@escaping CompleteResult) {
         let provider = MoyaProvider<Store>()
         let _ = provider.request(.recommend) { (result) in
-            self.handleData(handResult: result, completeResult: completeResult)
+            self.handleData(storeKey: "recommend", handResult: result, completeResult: completeResult)
         }
     }
     
     func requestTopList(completeResult:@escaping CompleteResult) {
         let provider = MoyaProvider<Store>()
         let _ = provider.request(.topList) { (result) in
-            self.handleData(handResult: result, completeResult: completeResult)
+            self.handleData(storeKey: "topList", handResult: result, completeResult: completeResult)
         }
     }
     
     func requestLookupApp(appid:String, completeResult:@escaping CompleteResult) {
         let provider = MoyaProvider<Store>()
         let _ = provider.request(.lookup(password: appid)) { (result) in
-            self.handleData(handResult: result, completeResult: completeResult)
+            self.handleData(storeKey: "lookup", handResult: result, completeResult: completeResult)
         }
     }
     
-    func handleData(handResult: Result<Moya.Response, MoyaError>,completeResult:@escaping CompleteResult) {
+    func handleData(storeKey: String,handResult: Result<Moya.Response, MoyaError>,completeResult:@escaping CompleteResult) {
+        let cache = YYCache(name: "data")
         switch handResult {
             case let .success(response):
                 do {
                     let mapJson = try response.mapJSON()
                     let json = JSON(mapJson)
-                    
-                    completeResult(true,json)
+                    cache?.setObject(mapJson as? NSCoding, forKey: storeKey)
+                    completeResult(.success,json)
                 } catch {
-                    completeResult(false,response)
+                    if let cacheData = cache?.object(forKey: storeKey) {
+                        let json = JSON(cacheData)
+                        completeResult(.failureData,json)
+                    } else {
+                        completeResult(.failureNoData,response)
+                    }
                 }
                 
         case let .failure(error):
-            completeResult(false,error)
+            if let cacheData = cache?.object(forKey: storeKey) {
+                let json = JSON(cacheData)
+                completeResult(.failureData,json)
+            } else {
+                completeResult(.failureNoData,error)
+            }
+            
         }
     }
     

@@ -84,6 +84,7 @@ class HeaderRecommonendView: UIView,UICollectionViewDelegate,UICollectionViewDat
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.showsHorizontalScrollIndicator = false;
+        collectionView.keyboardDismissMode = .onDrag
         addSubview(collectionView)
     }
     

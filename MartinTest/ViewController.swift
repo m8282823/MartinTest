@@ -49,7 +49,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView?.backgroundColor = .white
         tableView?.dataSource = self
         tableView?.delegate = self
-//        tableView?.isPagingEnabled = true
         tableView?.rowHeight = 95
         tableView?.register(TopListTableViewCell.self, forCellReuseIdentifier: self.identfier)
         view.addSubview(self.tableView!)
@@ -68,11 +67,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func requestRecommendData() {
         let hud = MBProgressHUD.showAdded(to: view, animated: true)
+        
         request.requestRecommend { [weak self] (success,result) in
             hud.hide(animated: true)
-            if (success) {
+            if (success == .success || success == .failureData) {
                 let json = result as! JSON
-                self?.headerView.recommendData = json["feed"]["entry"].array
+                let entry = json["feed"]["entry"].array
+                self?.headerView.recommendData = entry
+                
+                
             } else {
                 self?.showErrorAlert(message: "拉取推荐失败")
                 self?.checkNetworkState()
@@ -86,7 +89,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         request.requestTopList {[weak self] (success, result) in
             
             hud.hide(animated: true)
-            if (success) {
+            if (success == .success || success == .failureData) {
                 let entry = result as! JSON
                 self?.rawListData = entry["feed"]["entry"].array
                 self?.listData = Array(self?.rawListData?[0..<10] ?? [])
@@ -139,6 +142,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        if isSearchMode {
+            return nil
+        }
         let footView = UIView(frame: CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: 200, height: 500)))
         footView.addSubview(footLabel)
         return footView
@@ -152,6 +158,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        if isSearchMode {
+            return 0
+        }
         return 50
     }
     
@@ -180,6 +189,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        if isSearchMode {
+            return
+        }
         let indexPath = tableView?.indexPathsForVisibleRows?.last
         if (indexPath?.row ?? 0) + 1 == listData?.count {
             if listData?.count ?? 0 < rawListData?.count ?? 0 {

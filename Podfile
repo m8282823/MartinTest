@@ -10,6 +10,7 @@ target 'MartinTest' do
   pod 'SnapKit'
   pod 'Kingfisher'
   pod 'MBProgressHUD'
+  pod 'YYCache'
 
   # Pods for MartinTest
 
